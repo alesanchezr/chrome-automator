@@ -1,0 +1,10 @@
+greeting:
+  es: "Hola {name} como estas? Soy {agent_name} de 4geeks"
+  en: "Hi {name}, how are you? I'm {agent_name} from 4geeks" 
+subscription_offer:
+  es: "Quería contarte sobre nuestra modalidad de suscripción (anual o mensual), que te da acceso a 4 cursos para aprender a tu propio ritmo:
+Full Stack, Data Science, Python, Vibe Coding with AI
+Es una excelente opción si buscás flexibilidad y querés formarte en tecnología con contenidos de calidad. ¿Te gustaría que te comparta más información?" 
+  en: "I wanted to tell you about our subscription model (annual or monthly), which gives you access to 4 courses to learn at your own pace:
+Full Stack, Data Science, Python, Vibe Coding with AI
+It's an excellent option if you're looking for flexibility and want to learn technology with quality content. Would you like me to share more information?" 
