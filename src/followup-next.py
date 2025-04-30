@@ -1,8 +1,13 @@
 import argparse
 from agent import Agent
-from utils import get_pending_contacts, get_message, update_contact
-import time
-import sys
+from utils import (
+    get_pending_contacts, 
+    update_contact, 
+    get_message, 
+    load_list_config, 
+    process_template_string, 
+    countdown
+)
 import random
 
 def handle_agent_completion(history):
@@ -30,7 +35,7 @@ def handle_agent_completion(history):
             error_message = f"Error: {history.errors}"
         update_contact(contact.get('id'), "ERROR", error_message)
 
-def process_contact(contact, agent):
+def process_contact(contact, agent, list_config):
     """Process a single contact"""
     print("Processing contact:", contact)
     update_contact(contact.get('id'), "STARTED", "Agent has started contacting the contact")
@@ -41,40 +46,31 @@ def process_contact(contact, agent):
         update_contact(contact.get('id'), "ERROR", "Missing phone")
         return False
 
+    # Process tasks from the YML configuration
+    tasks = []
+    for task_item in list_config['agent']['tasks']:
+        task = task_item['task']
+        # Process any template variables in the task
+        processed_task = process_template_string(task, contact, agent.name, list_config)
+        tasks.append(processed_task)
+
     # Add tasks for this contact
-    agent.addTasks((
-        f"Open WhatsApp at web.whatsapp.com",
-        f"Click on the + icon for a new chat",
-        f"On the search bar, search for the number {contact.get('phone', '')}",
-        f"If no results are found, stop because the user does not have whatsapp installed for that number",
-        f"If a contact is found under that number, click on it to start a new conversation",
-        f"On the right side of the screen, you will find the convertsation empty, make sure the input to write a message is also empty, if not, clear it.",
-        f"Compose a new message: {get_message('greeting', contact, agent.name)}",
-        "Send the message",
-        f"Compose another message: {get_message('subscription_offer', contact, agent.name)}",
-        "Send the message"
-    ))
+    agent.addTasks(tuple(tasks))
     
     # Run the agent
     agent.run()
     return True
 
-def countdown(seconds):
-    """Show a countdown timer"""
-    for i in range(seconds, 0, -1):
-        sys.stdout.write(f"\rWaiting {i} seconds before next contact... ")
-        sys.stdout.flush()
-        time.sleep(1)
-    sys.stdout.write("\r" + " " * 50 + "\r")  # Clear the line
-    sys.stdout.flush()
-
 def main():
     parser = argparse.ArgumentParser(description='Process follow-up contacts')
-    parser.add_argument('--list', required=True, help='List name to process (e.g., 4ga-list)')
+    parser.add_argument('--list', required=True, help='List name to process (e.g., 4ga-lost)')
     args = parser.parse_args()
 
-    # Create agent once
-    agent = Agent(name="Flor", on_complete=handle_agent_completion)
+    # Load list configuration
+    list_config = load_list_config(args.list)
+    
+    # Create agent with name from config
+    agent = Agent(name=list_config['agent']['name'], on_complete=handle_agent_completion)
     
     try:
         while True:
@@ -90,7 +86,7 @@ def main():
             contact = contacts[0]
             
             # Process the contact
-            process_contact(contact, agent)
+            process_contact(contact, agent, list_config)
             
             # Wait a random time between 3-6 minutes before processing the next contact
             wait_time = random.randint(180, 360)  # Random seconds between 3-6 minutes
