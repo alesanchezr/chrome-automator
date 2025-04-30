@@ -9,6 +9,7 @@ import platform
 CHROME_PATHS = {
     'darwin': "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",  # macOS
     'win32': "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",     # Windows
+    'windows': "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",     # Windows
     'linux': "/usr/bin/google-chrome"                                          # Debian-based Linux
 }
 
