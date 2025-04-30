@@ -4,6 +4,10 @@ import asyncio
 from pydantic import SecretStr
 import os
 import platform
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Dictionary mapping operating systems to Chrome binary paths
 CHROME_PATHS = {
@@ -26,6 +30,9 @@ class Agent:
     def __init__(self, name="Flor", on_complete=None):
         if not Agent._initialized:
             api_key = os.getenv("DEEPSEEK_API_KEY")
+            if not api_key:
+                raise ValueError("DEEPSEEK_API_KEY environment variable is not set. Please add it to your .env file.")
+            
             self.llm = ChatOpenAI(base_url='https://api.deepseek.com/v1', model='deepseek-chat', api_key=SecretStr(api_key))
             
             # Get the appropriate Chrome path based on the operating system
