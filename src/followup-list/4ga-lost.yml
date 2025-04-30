@@ -7,7 +7,7 @@ agent:
     - task: "Click on the + icon for a new chat"
     - task: "On the search bar, search for the number {{contact.phone}}"
     - task: "If no results are found, stop because the user does not have whatsapp installed for that number"
-    - task: "If a contact is found under that number, click on it to start a new conversation"
+    - task: "If a contact is found under that number, click on the number found to start a new conversation"
     - task: "On the right side of the screen, you will find the conversation empty, make sure the input to write a message is also empty, if not, clear it"
     - task: "Compose a new message: {{get_message('greeting', contact, agent.name)}}"
     - task: "Send the message"

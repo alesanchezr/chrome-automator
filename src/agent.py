@@ -72,7 +72,6 @@ class BrowserAgent:
             llm=self.llm,
             browser=self.browser,
         )
-        print("running.....", self.llm)
         result = await agent.run()
         
         # Call the callback if it exists
