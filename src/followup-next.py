@@ -92,7 +92,7 @@ def main():
             process_contact(contact, browserAgent, list_config)
             
             # Wait a random time between 3-6 minutes before processing the next contact
-            wait_time = random.randint(180, 360)  # Random seconds between 3-6 minutes
+            wait_time = random.randint(1*60, 4*60)  # Random seconds between 3-6 minutes
             print(f"\nWaiting {wait_time} seconds ({wait_time/60:.1f} minutes) before next contact...")
             countdown(wait_time)
             
