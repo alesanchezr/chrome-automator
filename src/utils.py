@@ -11,7 +11,7 @@ def get_message(message_type, contact, agent_name, list_config):
         raise ValueError(f"Message type '{message_type}' not found in list configuration")
     
     # Get the message in the contact's language (default to English if not specified)
-    lang = contact.get('language', 'en')
+    lang = contact.get('utmLanguage', 'en')
     if lang not in list_config['messages'][message_type]:
         lang = 'en'  # Fallback to English if the language is not available
     
