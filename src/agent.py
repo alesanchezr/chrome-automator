@@ -4,10 +4,6 @@ import asyncio
 from pydantic import SecretStr
 import os
 import platform
-from dotenv import load_dotenv
-
-# Load environment variables
-load_dotenv()
 
 # Dictionary mapping operating systems to Chrome binary paths
 CHROME_PATHS = {
