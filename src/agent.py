@@ -1,8 +1,10 @@
-# from langchain_openai import ChatOpenAI
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_openai import ChatOpenAI
 from browser_use import Agent as BrowserAgent, BrowserConfig, Browser
 import asyncio
-import json
+from pydantic import SecretStr
+import os
+
+
 
 class Agent:
     _instance = None
@@ -17,8 +19,8 @@ class Agent:
 
     def __init__(self, name="Flor", on_complete=None):
         if not Agent._initialized:
-            self.llm = ChatGoogleGenerativeAI(model='gemini-2.0-flash-exp')
-            # self.llm = ChatOpenAI(model="gpt-4o")
+            api_key = os.getenv("DEEPSEEK_API_KEY")
+            self.llm = ChatOpenAI(base_url='https://api.deepseek.com/v1', model='deepseek-chat', api_key=SecretStr(api_key))
             self.b_config = BrowserConfig(
                 browser_binary_path="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
                 initial_urls=[

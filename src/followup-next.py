@@ -82,7 +82,7 @@ def main():
             contacts = get_pending_contacts(args.list)
             if not contacts or len(contacts) == 0:
                 print("No pending contacts found. Waiting for new contacts...")
-                countdown(60)  # Wait for 1 minute before checking again
+                countdown(5)  # Wait for 5 seconds before checking again
                 continue
 
             # Get the first contact
