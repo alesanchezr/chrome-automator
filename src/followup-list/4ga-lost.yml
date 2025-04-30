@@ -15,6 +15,7 @@ agent:
     - task: "Compose another message: {{get_message('subscription_offer', contact, agent.name)}}"
     - task: "Send the message" 
 
+messages:
   greeting:
     es: "Hola {name} como estas? Soy {agent_name} de 4geeks"
     en: "Hi {name}, how are you? I'm {agent_name} from 4geeks"
