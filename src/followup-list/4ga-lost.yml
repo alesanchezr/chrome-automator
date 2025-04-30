@@ -6,16 +6,15 @@ agent:
     - task: "Open WhatsApp at web.whatsapp.com"
     - task: "Click on the + icon for a new chat"
     - task: "On the search bar, write the number {{contact.phone}} and and hit enter key on the keyboard, wait for the results"
-    - task: "If no results are found, stop because the user does not have whatsapp installed for that number"
-    - task: "If a contact is found, you will see it under the search input, click on top the number found to start a new conversation"
-    - task: "On the right side of the screen, you will find the new conversation empty, with an input at the bottom of the screen, click on the input to write a new message"
+    - task: "If no results are found, you will see a message saying 'No results found', stop because the user does not have whatsapp installed for that number"
+    - task: "If a contact is found, you will see the new conversation on the right side of the screen, with the number of the contact on the top of the conversation"
+    - task: "The cursor should be already placed on the input at the bottom of the conversation, ready to start typing a message, if not, click on the input to place the cursor"
     - task: "If the input is not empty, clear it before starting to type"
     - task: "Compose a new message: {{get_message('greeting', contact, agent.name)}}"
     - task: "Send the message"
     - task: "Compose another message: {{get_message('subscription_offer', contact, agent.name)}}"
     - task: "Send the message" 
 
-messages:
   greeting:
     es: "Hola {name} como estas? Soy {agent_name} de 4geeks"
     en: "Hi {name}, how are you? I'm {agent_name} from 4geeks"
