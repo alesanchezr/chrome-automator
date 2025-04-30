@@ -9,6 +9,10 @@ from utils import (
     countdown
 )
 import random
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 def handle_agent_completion(history):
     """Handle the completion of agent tasks"""

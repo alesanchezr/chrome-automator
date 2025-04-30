@@ -20,13 +20,7 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-3. Install Playwright browsers:
-
-```bash
-python -m playwright install
-```
-
-4. Create a `.env` file and add your Deepseek API key:
+3. Create a `.env` file and add your Deepseek API key:
 
 ```txt
 DEEPSEEK_API_KEY=your_api_key_here
