@@ -3,8 +3,14 @@ from browser_use import Agent as BrowserAgent, BrowserConfig, Browser
 import asyncio
 from pydantic import SecretStr
 import os
+import platform
 
-
+# Dictionary mapping operating systems to Chrome binary paths
+CHROME_PATHS = {
+    'darwin': "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",  # macOS
+    'win32': "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",     # Windows
+    'linux': "/usr/bin/google-chrome"                                          # Debian-based Linux
+}
 
 class Agent:
     _instance = None
@@ -21,8 +27,15 @@ class Agent:
         if not Agent._initialized:
             api_key = os.getenv("DEEPSEEK_API_KEY")
             self.llm = ChatOpenAI(base_url='https://api.deepseek.com/v1', model='deepseek-chat', api_key=SecretStr(api_key))
+            
+            # Get the appropriate Chrome path based on the operating system
+            system = platform.system().lower()
+            chrome_path = CHROME_PATHS.get(system)
+            if not chrome_path:
+                raise OSError(f"Unsupported operating system: {system}. Please add the Chrome path for this system to CHROME_PATHS.")
+            
             self.b_config = BrowserConfig(
-                browser_binary_path="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+                browser_binary_path=chrome_path,
                 initial_urls=[
                     "https://app.brevo.com/crm/deals/kanban?pipeline=66f5835877486769ad130fd6&sortBy=created_at&sort=desc",
                     "https://web.whatsapp.com/"
