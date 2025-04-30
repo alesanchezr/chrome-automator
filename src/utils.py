@@ -4,6 +4,11 @@ import requests
 import sys
 import time
 from string import Template
+import threading
+if os.name == 'nt':
+    import msvcrt
+else:
+    import select
 
 def get_message(message_type, contact, agent_name, list_config):
     """Get a message from the list configuration"""
@@ -53,12 +58,26 @@ def process_template_string(template_str, contact, agent_name, list_config):
     return template_str
 
 def countdown(seconds):
-    """Show a countdown timer"""
+    """Show a countdown timer that can be skipped by pressing Enter"""
+    def check_input():
+        if os.name == 'nt':  # Windows
+            return msvcrt.kbhit() and msvcrt.getch() == b'\r'
+        else:  # Unix-like
+            return select.select([sys.stdin], [], [], 0)[0] and sys.stdin.read(1) == '\n'
+
     for i in range(seconds, 0, -1):
-        sys.stdout.write(f"\rWaiting {i} seconds before next contact... ")
+        sys.stdout.write(f"\rWaiting {i} seconds before next contact... (Press Enter to skip) ")
         sys.stdout.flush()
-        time.sleep(1)
-    sys.stdout.write("\r" + " " * 50 + "\r")  # Clear the line
+        
+        # Check for input every 0.1 seconds
+        for _ in range(10):
+            if check_input():
+                sys.stdout.write("\r" + " " * 70 + "\r")  # Clear the line
+                sys.stdout.flush()
+                return
+            time.sleep(0.1)
+    
+    sys.stdout.write("\r" + " " * 70 + "\r")  # Clear the line
     sys.stdout.flush()
 
 def get_pending_contacts(list_name):
