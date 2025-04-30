@@ -73,8 +73,8 @@ def main():
     list_config = load_list_config(args.list)
     
     # Create BrowserAgent with name from config
-    browserAgent = BrowserAgent(name=list_config['agent']['name'], on_complete=handle_agent_completion)
     
+    browserAgent = BrowserAgent(name=list_config['agent']['name'], on_complete=handle_agent_completion)
     try:
         while True:
             # Get pending contacts
@@ -95,6 +95,7 @@ def main():
             wait_time = random.randint(1*60, 4*60)  # Random seconds between 3-6 minutes
             print(f"\nWaiting {wait_time} seconds ({wait_time/60:.1f} minutes) before next contact...")
             countdown(wait_time)
+            browserAgent = BrowserAgent(name=list_config['agent']['name'], on_complete=handle_agent_completion)
             
     except KeyboardInterrupt:
         print("\nGracefully shutting down...")
