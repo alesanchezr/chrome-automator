@@ -1,5 +1,5 @@
 import argparse
-from agent import Agent
+from agent import BrowserAgent
 from utils import (
     get_pending_contacts, 
     update_contact, 
@@ -8,11 +8,11 @@ from utils import (
     process_template_string, 
     countdown
 )
-import random
+import random, os
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
-load_dotenv()
+load_dotenv(override=True)
 
 def handle_agent_completion(history):
     """Handle the completion of agent tasks"""
@@ -39,9 +39,8 @@ def handle_agent_completion(history):
             error_message = f"Error: {history.errors}"
         update_contact(contact.get('id'), "ERROR", error_message)
 
-def process_contact(contact, agent, list_config):
+def process_contact(contact, _agent, list_config):
     """Process a single contact"""
-    print("Processing contact:", contact)
     update_contact(contact.get('id'), "STARTED", "Agent has started contacting the contact")
 
     # Check if contact has a phone number
@@ -55,14 +54,14 @@ def process_contact(contact, agent, list_config):
     for task_item in list_config['agent']['tasks']:
         task = task_item['task']
         # Process any template variables in the task
-        processed_task = process_template_string(task, contact, agent.name, list_config)
+        processed_task = process_template_string(task, contact, _agent.name, list_config)
         tasks.append(processed_task)
 
     # Add tasks for this contact
-    agent.addTasks(tuple(tasks))
+    _agent.addTasks(tuple(tasks))
     
     # Run the agent
-    agent.run()
+    _agent.run()
     return True
 
 def main():
@@ -73,8 +72,8 @@ def main():
     # Load list configuration
     list_config = load_list_config(args.list)
     
-    # Create agent with name from config
-    agent = Agent(name=list_config['agent']['name'], on_complete=handle_agent_completion)
+    # Create BrowserAgent with name from config
+    browserAgent = BrowserAgent(name=list_config['agent']['name'], on_complete=handle_agent_completion)
     
     try:
         while True:
@@ -90,7 +89,7 @@ def main():
             contact = contacts[0]
             
             # Process the contact
-            process_contact(contact, agent, list_config)
+            process_contact(contact, browserAgent, list_config)
             
             # Wait a random time between 3-6 minutes before processing the next contact
             wait_time = random.randint(180, 360)  # Random seconds between 3-6 minutes
@@ -100,7 +99,7 @@ def main():
     except KeyboardInterrupt:
         print("\nGracefully shutting down...")
         # Clean up if needed
-        agent.close()
+        browserAgent.close()
         print("Shutdown complete.")
 
 if __name__ == "__main__":
