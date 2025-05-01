@@ -3,17 +3,21 @@ description: Follow-up list for 4GA lost customers
 agent:
   name: Flor
   tasks:
+    # Tasks that run on any system
     - task: "Open WhatsApp at web.whatsapp.com"
     - task: "Click on the + icon for a new chat"
     - task: "On the search bar, write the number {{contact.phone}} and and hit enter key on the keyboard, wait for the results"
     - task: "If no results are found, you will see a message saying 'No results found', stop because the user does not have whatsapp installed for that number"
     - task: "If a contact is found, you will see the new conversation on the right side of the screen, with the number of the contact on the top of the conversation"
     - task: "The cursor should be already placed on the input at the bottom of the conversation, ready to start typing a message, if not, click on the input to place the cursor"
-    - task: "If the input is not empty, clear it before starting to type"
     - task: "Compose a new message: {{get_message('greeting', contact, agent.name)}}"
     - task: "Send the message"
     - task: "Compose another message: {{get_message('subscription_offer', contact, agent.name)}}"
-    - task: "Send the message" 
+    - task: "Send the message"
+    - task: "Close the current tab"
+
+    # - task: "Press Ctrl + W to close the current tab"
+    #   system: "windows"
 
 messages:
   greeting:

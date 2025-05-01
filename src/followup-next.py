@@ -8,7 +8,7 @@ from utils import (
     process_template_string, 
     countdown
 )
-import random, os
+import random, os, platform
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -51,7 +51,12 @@ def process_contact(contact, _agent, list_config):
 
     # Process tasks from the YML configuration
     tasks = []
+    
     for task_item in list_config['agent']['tasks']:
+        # Skip tasks that are specific to a different system
+        if 'system' in task_item and task_item['system'] != _agent.system:
+            continue
+            
         task = task_item['task']
         # Process any template variables in the task
         processed_task = process_template_string(task, contact, _agent.name, list_config)
@@ -74,10 +79,13 @@ def main():
     
     # Create BrowserAgent with name from config
     
-    browserAgent = BrowserAgent(name=list_config['agent']['name'], on_complete=handle_agent_completion)
+    browserAgent = None
     try:
         while True:
             # Get pending contacts
+            if not browserAgent: 
+                browserAgent = BrowserAgent(name=list_config['agent']['name'], on_complete=handle_agent_completion)
+
             contacts = get_pending_contacts(args.list)
             if not contacts or len(contacts) == 0:
                 print("No pending contacts found. Waiting for new contacts...")
@@ -95,7 +103,10 @@ def main():
             wait_time = random.randint(1*60, 4*60)  # Random seconds between 3-6 minutes
             print(f"\nWaiting {wait_time} seconds ({wait_time/60:.1f} minutes) before next contact...")
             countdown(wait_time)
-            browserAgent = BrowserAgent(name=list_config['agent']['name'], on_complete=handle_agent_completion)
+
+            # Close the browser agent
+            browserAgent.close()
+            browserAgent = None
             
     except KeyboardInterrupt:
         print("\nGracefully shutting down...")
