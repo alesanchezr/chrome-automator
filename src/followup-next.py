@@ -77,6 +77,9 @@ def main():
     # Load list configuration
     list_config = load_list_config(args.list)
     
+    # Create a single asyncio event loop for the whole script
+    loop = asyncio.get_event_loop()
+    
     # Create BrowserAgent with name from config
     browserAgent = None
     try:
@@ -104,14 +107,14 @@ def main():
             countdown(wait_time)
 
             # Close the browser agent
-            asyncio.run(browserAgent.close())
+            loop.run_until_complete(browserAgent.close())
             browserAgent = None
             
     except KeyboardInterrupt:
         print("\nGracefully shutting down...")
         # Clean up if needed
         if browserAgent:
-            browserAgent.close()
+            loop.run_until_complete(browserAgent.close())
         print("Shutdown complete.")
 
 if __name__ == "__main__":
