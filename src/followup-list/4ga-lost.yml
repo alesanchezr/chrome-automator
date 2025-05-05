@@ -9,11 +9,8 @@ agent:
     - task: "After the loading is over, you should see ether a not found message or a new conversation with the number of the contact on the top of the conversation and one input to write a message at the bottom of the conversation"
     - task: "If the number is not found, or is invalid, stop because the user does not have whatsapp installed for that number"
     - task: "The cursor should be already placed on the input at the bottom of the conversation, ready to start typing a message, if not, click on the input to place the cursor"
-    - task: "Compose a new message: {{get_message('greeting', contact, agent.name)}}"
-    - task: "Send the message"
-    - task: "Compose another message: {{get_message('subscription_offer', contact, agent.name)}}"
-    - task: "Send the message"
-    - task: "Close the current tab"
+    - task: "Compose a new message: {{get_message('greeting', contact, agent.name)}} and send it"
+    - task: "Compose another message: {{get_message('subscription_offer', contact, agent.name)}} and send it"
 
     # - task: "Press Ctrl + W to close the current tab"
     #   system: "windows"
