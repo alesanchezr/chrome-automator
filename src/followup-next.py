@@ -77,8 +77,12 @@ def main():
     # Load list configuration
     list_config = load_list_config(args.list)
     
-    # Create a single asyncio event loop for the whole script
-    loop = asyncio.get_event_loop()
+    # Create a single asyncio event loop for the whole script, robust for all Python versions
+    try:
+        loop = asyncio.get_event_loop()
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
     
     # Create BrowserAgent with name from config
     browserAgent = None
