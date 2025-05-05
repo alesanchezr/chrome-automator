@@ -4,10 +4,8 @@ agent:
   name: Flor
   tasks:
     # Tasks that run on any system
-    - task: "Open WhatsApp at web.whatsapp.com"
-    - task: "Click on the + icon for a new chat"
-    - task: "On the search bar, write the number {{contact.phone}} and and hit enter key on the keyboard, wait for the results"
-    - task: "If no results are found, you will see a message saying 'No results found', stop because the user does not have whatsapp installed for that number"
+    - task: "Open WhatsApp at https://web.whatsapp.com/send/?phone={{contact.phone}}&text&type=phone_number&app_absent=0"
+    - task: "If the number is not found, or is invalid, stop because the user does not have whatsapp installed for that number"
     - task: "If a contact is found, you will see the new conversation on the right side of the screen, with the number of the contact on the top of the conversation"
     - task: "The cursor should be already placed on the input at the bottom of the conversation, ready to start typing a message, if not, click on the input to place the cursor"
     - task: "Compose a new message: {{get_message('greeting', contact, agent.name)}}"

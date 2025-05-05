@@ -8,7 +8,7 @@ from utils import (
     process_template_string, 
     countdown
 )
-import random, os, platform
+import random, os, asyncio
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -78,7 +78,6 @@ def main():
     list_config = load_list_config(args.list)
     
     # Create BrowserAgent with name from config
-    
     browserAgent = None
     try:
         while True:
@@ -105,13 +104,14 @@ def main():
             countdown(wait_time)
 
             # Close the browser agent
-            browserAgent.close()
+            asyncio.run(browserAgent.close())
             browserAgent = None
             
     except KeyboardInterrupt:
         print("\nGracefully shutting down...")
         # Clean up if needed
-        browserAgent.close()
+        if browserAgent:
+            browserAgent.close()
         print("Shutdown complete.")
 
 if __name__ == "__main__":
