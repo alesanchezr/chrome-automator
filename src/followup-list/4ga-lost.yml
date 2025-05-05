@@ -4,11 +4,11 @@ agent:
   name: Flor
   tasks:
     # Tasks that run on any system
-    - task: "Open WhatsApp at https://web.whatsapp.com/send/?phone={{contact.phone}}&text&type=phone_number&app_absent=0 and wait for the website to fully load, there will probably be a loading animation or a whatsapp homepage during a couple of seconds"
+    - task: "Open WhatsApp at https://web.whatsapp.com/send/?phone={{contact.phone}}&text&type=phone_number&app_absent=0 and wait for the website home page to fully load."
     - task: "After the loading is over, you should see ether a not found message or a new conversation on the right side of the screen with the number of the contact on the top of the conversation and one input to write a message at the bottom of the conversation"
     - task: "If the number is not found, or is invalid, stop because the user does not have whatsapp installed for that number"
     - task: "The cursor should be already placed on the input at the bottom of the conversation, ready to start typing a message, if not, click on the input to place the cursor"
-    - task: "Compose a new message: {{get_message('greeting', contact, agent.name)}} and send the message"
+    - task: "Compose a new message like this but make sure only the first name of the contact is used, ignore the last name: "{{get_message('greeting', contact, agent.name)}}" and send the message"
     - task: "After sending the previous one, compose new message: {{get_message('subscription_offer', contact, agent.name)}} and send the message"
 
     # - task: "Press Ctrl + W to close the current tab"
