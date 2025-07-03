@@ -41,6 +41,10 @@ def handle_agent_completion(history):
 
 def process_contact(contact, _agent, list_config):
     """Process a single contact"""
+    if not contact:
+        print("Invalid contact object")
+        return False
+
     update_contact(contact.get('id'), "STARTED", "Agent has started contacting the contact")
 
     # Check if contact has a phone number
@@ -69,6 +73,36 @@ def process_contact(contact, _agent, list_config):
     _agent.run()
     return True
 
+def handle_development_contact(contact):
+    """Handle a contact in development mode - only returns if we should process this contact"""
+    if not contact.get('email'):
+        print(f"Skipping {contact.get('id')} in development mode: no email")
+        return False
+    
+    if '@4geeksacademy.com' not in contact['email']:
+        print(f"Skipping {contact.get('id')} in development mode (email: {contact.get('email')}) because it is not a 4Geeks Academy email")
+        return False
+        
+    return True  # Process only 4geeks.com emails
+
+def process_contact_queue(contacts, list_config, loop, browserAgent=None):
+    """Process a queue of contacts"""
+    if not contacts:
+        return None, None
+        
+    for current_contact in contacts:
+        # In development mode, only process 4geeks.com emails
+        if os.getenv('ENVIRONMENT') == 'development':
+            if not current_contact.get('email') or '@4geeksacademy.com' not in current_contact['email']:
+                print(f"Skipping {current_contact.get('id')} in development mode (email: {current_contact.get('email')}) because it is not a 4Geeks Academy email")
+                continue
+                
+        # We found a contact to process
+        return current_contact, browserAgent or BrowserAgent(name=list_config['agent']['name'], on_complete=handle_agent_completion)
+        
+    # No contacts to process
+    return None, browserAgent
+
 def main():
     parser = argparse.ArgumentParser(description='Process follow-up contacts')
     parser.add_argument('--list', required=True, help='List name to process (e.g., 4ga-lost)')
@@ -77,49 +111,59 @@ def main():
     # Load list configuration
     list_config = load_list_config(args.list)
     
-    # Create a single asyncio event loop for the whole script, robust for all Python versions
-    try:
-        loop = asyncio.get_event_loop()
-    except RuntimeError:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
+    # Create a single asyncio event loop for the whole script
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
     
     # Create BrowserAgent with name from config
     browserAgent = None
     try:
         while True:
-            # Get pending contacts
-            if not browserAgent: 
-                browserAgent = BrowserAgent(name=list_config['agent']['name'], on_complete=handle_agent_completion)
+            try:
+                # Get pending contacts
+                contacts = get_pending_contacts(args.list)
+                if not contacts:
+                    print("No pending contacts found. Waiting for 5 minutes...")
+                    countdown(300)  # Wait for 5 minutes before checking again
+                    continue
 
-            contacts = get_pending_contacts(args.list)
-            if not contacts or len(contacts) == 0:
-                print("No pending contacts found. Waiting for new contacts...")
-                countdown(5)  # Wait for 5 seconds before checking again
-                continue
+                # Find next contact to process
+                global contact  # Make contact accessible to the callback
+                contact, browserAgent = process_contact_queue(contacts, list_config, loop, browserAgent)
+                
+                if not contact:
+                    print("No contacts to process at this time. Waiting 5 minutes...")
+                    countdown(300)  # Wait for 5 minutes before checking again
+                    continue
 
-            # Get the first contact
-            global contact  # Make contact accessible to the callback
-            contact = contacts[0]
-            
-            # Process the contact
-            process_contact(contact, browserAgent, list_config)
-            
-            # Wait a random time between 3-6 minutes before processing the next contact
-            wait_time = random.randint(1*60, 4*60)  # Random seconds between 3-6 minutes
-            print(f"\nWaiting {wait_time} seconds ({wait_time/60:.1f} minutes) before next contact...")
-            countdown(wait_time)
+                # Process the contact
+                process_contact(contact, browserAgent, list_config)
+                
+                # Wait a random time between 1-4 minutes before processing the next contact
+                wait_time = random.randint(60, 240)  # Random seconds between 1-4 minutes
+                print(f"\nWaiting {wait_time} seconds ({wait_time/60:.1f} minutes) before next contact...")
+                countdown(wait_time)
 
-            # Close the browser agent
-            loop.run_until_complete(browserAgent.close())
-            browserAgent = None
-            
+                # Close and recreate the browser agent for each contact to prevent memory issues
+                if browserAgent:
+                    loop.run_until_complete(browserAgent.close())
+                    browserAgent = None
+                    
+            except Exception as e:
+                print(f"Error processing contact: {str(e)}")
+                if browserAgent:
+                    loop.run_until_complete(browserAgent.close())
+                    browserAgent = None
+                countdown(60)  # Wait a minute before retrying
+
     except KeyboardInterrupt:
         print("\nGracefully shutting down...")
         # Clean up if needed
         if browserAgent:
             loop.run_until_complete(browserAgent.close())
         print("Shutdown complete.")
+    finally:
+        loop.close()
 
 if __name__ == "__main__":
-    main() 
+    main()

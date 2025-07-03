@@ -3,25 +3,208 @@ description: Follow-up list for 4GA lost customers
 agent:
   name: Flor
   tasks:
-    # Tasks that run on any system
-    - task: "Open WhatsApp at https://web.whatsapp.com/send/?phone={{contact.phone}}&text&type=phone_number&app_absent=0 and wait for the website home page to fully load."
-    - task: "After the loading is over, you should see ether a not found message or a new conversation on the right side of the screen with the number of the contact on the top of the conversation and one input to write a message at the bottom of the conversation"
-    - task: "If the number is not found, or is invalid, stop because the user does not have whatsapp installed for that number"
-    - task: "The cursor should be already placed on the input at the bottom of the conversation, ready to start typing a message, if not, click on the input to place the cursor"
-    - task: "Compose a new message like this but make sure only the first name of the contact is used, ignore the last name: '{{get_message('greeting', contact, agent.name)}}' and send the message"
-    - task: "After sending the previous one, compose new message: '{{get_message('subscription_offer', contact, agent.name)}}' and send the message"
+    - task: |
+        Navigate directly to the WhatsApp chat by opening:
+        https://web.whatsapp.com/send/?phone={{contact.phone}}&text&type=phone_number&app_absent=0
+        
+        Wait until the chat is fully loaded. You must see the message input box at the bottom with the placeholder "Type a message".
+        Do not proceed until this input box is clearly visible.
 
-    # - task: "Press Ctrl + W to close the current tab"
-    #   system: "windows"
+    - task: |
+        Now that the chat is loaded, send the greeting message:
+        {{get_message('greeting', contact, agent_name, list_config)}}
+        
+        Wait until you see the message sent checkmark before continuing.
+
+    - task: |
+        Now send the subscription offer message based on contact's course.
+        The message to send is:
+        {{get_message('subscription_offer_generic', contact, agent_name, list_config)}}
+        
+        Wait until you see the message sent checkmark before continuing.
+
+    - task: |
+        Finally, send the advantages message:
+        {{get_message('advantages_and_certs', contact, agent_name, list_config)}}
+        
+        Wait until you see the message sent checkmark before completing.
+
+status_tasks:
+  PENDING:
+    - type: message
+      key: greeting
+    - type: message
+      key: subscription_offer_{course}
+    - type: message
+      key: advantages_and_certs
+  CONTACTED:
+    - type: message
+      key: reminder
+  CLOSED: []
+  PAUSE: []
 
 messages:
   greeting:
-    es: "Hola {name} como estas? Soy {agent_name} de 4geeks"
-    en: "Hi {name}, how are you? I'm {agent_name} from 4geeks"
-  subscription_offer:
-    es: "Quería contarte sobre nuestra modalidad de suscripción (anual o mensual), que te da acceso a 4 cursos para aprender a tu propio ritmo:
-Full Stack, Data Science, Python, Vibe Coding with AI
-Es una excelente opción si buscás flexibilidad y querés formarte en tecnología con contenidos de calidad. ¿Te gustaría que te comparta más información?"
-    en: "I wanted to tell you about our subscription model (annual or monthly), which gives you access to 4 courses to learn at your own pace:
-Full Stack, Data Science, Python, Vibe Coding with AI
-It's an excellent option if you're looking for flexibility and want to learn technology with quality content. Would you like me to share more information?"
+    es: "Hola {{contact.name}}, ¿cómo estás? Soy {agent_name} de 4Geeks Academy."
+    en: "Hi {{contact.name}}, how are you? I'm {agent_name} from 4Geeks Academy."
+  subscription_offer_full-stack:
+    es: |
+      ¡{{contact.name}}, vi que te interesa el desarrollo Full Stack! 🚀 Tengo una oferta especial para ti:
+
+      👉 Acceso completo al curso Full Stack Development con 50% de descuento: solo $240 USD/año (normalmente $480)
+      
+      Aprenderás:
+      - Desarrollo web front-end (HTML, CSS, JavaScript, React)
+      - Programación back-end (Python, APIs, bases de datos)
+      - Desarrollo de aplicaciones web completas
+      - DevOps y despliegue de aplicaciones
+
+      BONUS: También tendrás acceso a nuestros cursos de Data Science, Python y Vibe Coding with AI sin costo adicional.
+
+      Inscríbete aquí con el 50% de descuento: https://4geeks.com/checkout?plan=4geeks-plus-subscription&has_available_cohorts=true&cohort=586
+
+      ¿Te gustaría comenzar tu carrera como desarrollador Full Stack hoy mismo?
+    en: |
+      {{contact.name}}, I saw you're interested in Full Stack Development! 🚀 I have a special offer for you:
+
+      👉 Full access to the Full Stack Development course at 50% off: only $240 USD/year (normally $480)
+      
+      You'll learn:
+      - Front-end web development (HTML, CSS, JavaScript, React)
+      - Back-end programming (Python, APIs, databases)
+      - Full web application development
+      - DevOps and application deployment
+
+      BONUS: You'll also get access to our Data Science, Python, and Vibe Coding with AI courses at no extra cost.
+
+      Enroll here with 50% off: https://4geeks.com/checkout?plan=4geeks-plus-subscription&has_available_cohorts=true&cohort=586
+
+      Would you like to start your Full Stack developer career today?
+  subscription_offer_datascience-ml:
+    es: |
+      ¡{{contact.name}}, vi que te interesa Data Science & Machine Learning! 🤖 Tengo una oferta especial para ti:
+
+      👉 Acceso completo al curso de Data Science con 50% de descuento: solo $240 USD/año (normalmente $480)
+      
+      En el curso aprenderás:
+      - Análisis de datos con Python y Pandas
+      - Machine Learning y modelos predictivos
+      - Deep Learning y redes neuronales
+      - Procesamiento de Big Data
+      - Visualización avanzada de datos
+
+      BONUS: También tendrás acceso a nuestros cursos de Full Stack, Python y Vibe Coding with AI sin costo adicional.
+
+      Inscríbete aquí con el 50% de descuento: https://4geeks.com/checkout?plan=4geeks-plus-subscription&has_available_cohorts=true&cohort=828
+
+      ¿Te gustaría comenzar tu carrera en Data Science hoy mismo?
+    en: |
+      {{contact.name}}, I saw you're interested in Data Science & Machine Learning! 🤖 I have a special offer for you:
+
+      👉 Full access to the Data Science course at 50% off: only $240 USD/year (normally $480)
+      
+      In this course you'll learn:
+      - Data analysis with Python and Pandas
+      - Machine Learning and predictive models
+      - Deep Learning and neural networks
+      - Big Data processing
+      - Advanced data visualization
+
+      BONUS: You'll also get access to our Full Stack, Python, and Vibe Coding with AI courses at no extra cost.
+
+      Enroll here with 50% off: https://4geeks.com/checkout?plan=4geeks-plus-subscription&has_available_cohorts=true&cohort=828
+
+      Would you like to start your Data Science career today?
+  subscription_offer_python:
+    es: |
+      ¡{{contact.name}}, vi que te interesa dominar Python! 🐍 Tengo una oferta especial para ti:
+
+      👉 Acceso completo al curso Deep Dive into Python con 50% de descuento: solo $240 USD/año (normalmente $480)
+      
+      En el curso aprenderás:
+      - Fundamentos sólidos de Python
+      - Programación orientada a objetos
+      - Automatización y scripting
+      - Estructuras de datos avanzadas
+      - Testing y mejores prácticas
+
+      BONUS: También tendrás acceso a nuestros cursos de Full Stack, Data Science y Vibe Coding with AI sin costo adicional.
+
+      Inscríbete aquí con el 50% de descuento: https://4geeks.com/checkout?plan=4geeks-plus-subscription&has_available_cohorts=true&cohort=834
+
+      ¿Te gustaría empezar a programar en Python hoy mismo?
+    en: |
+      {{contact.name}}, I saw you're interested in mastering Python! 🐍 I have a special offer for you:
+
+      👉 Full access to the Deep Dive into Python course at 50% off: only $240 USD/year (normally $480)
+      
+      In this course you'll learn:
+      - Solid Python foundations
+      - Object-oriented programming
+      - Automation and scripting
+      - Advanced data structures
+      - Testing and best practices
+
+      BONUS: You'll also get access to our Full Stack, Data Science, and Vibe Coding with AI courses at no extra cost.
+
+      Enroll here with 50% off: https://4geeks.com/checkout?plan=4geeks-plus-subscription&has_available_cohorts=true&cohort=834
+
+      Would you like to start programming in Python today?
+  subscription_offer_vibe-coding-with-ai:
+    es: |
+      ¡{{contact.name}}, vi que te interesa la programación con IA! 🤖✨ Tengo una oferta especial para ti:
+
+      👉 Acceso completo al curso Vibe Coding with AI con 50% de descuento: solo $240 USD/año (normalmente $480)
+      
+      En el curso aprenderás:
+      - Desarrollo de aplicaciones con IA
+      - Integración de modelos de lenguaje
+      - Prompting avanzado y optimización
+      - Construcción de agentes inteligentes
+      - Mejores prácticas en IA responsable
+
+      BONUS: También tendrás acceso a nuestros cursos de Full Stack, Data Science y Python sin costo adicional.
+
+      Inscríbete aquí con el 50% de descuento: https://4geeks.com/checkout?plan=4geeks-plus-subscription&has_available_cohorts=true&cohort=1169
+
+      ¿Te gustaría empezar a crear aplicaciones con IA hoy mismo?
+    en: |
+      {{contact.name}}, I saw you're interested in AI programming! 🤖✨ I have a special offer for you:
+
+      👉 Full access to the Vibe Coding with AI course at 50% off: only $240 USD/year (normally $480)
+      
+      In this course you'll learn:
+      - AI-powered application development
+      - Language model integration
+      - Advanced prompting and optimization
+      - Building intelligent agents
+      - AI responsibility best practices
+
+      BONUS: You'll also get access to our Full Stack, Data Science, and Python courses at no extra cost.
+
+      Enroll here with 50% off: https://4geeks.com/checkout?plan=4geeks-plus-subscription&has_available_cohorts=true&cohort=1169
+
+      Would you like to start creating AI applications today?
+  subscription_offer_generic:
+    es: |
+      ¡{{contact.name}}, accede a todos nuestros cursos self-paced con 50% de descuento solo durante un tiempo limitado! $240 USD/año (precio regular $480). Incluye Full Stack, Data Science, Python y Vibe Coding with AI. Inscríbete aquí: https://4geeks.com/checkout?plan=4geeks-plus-subscription&has_available_cohorts=true&cohort=586
+      ¿Te gustaría recibir el enlace personalizado o más información?
+    en: |
+      {{contact.name}}, get access to all our self-paced courses at 50% off for a limited time only! $240 USD/year (regular $480). Includes Full Stack, Data Science, Python, and Vibe Coding with AI. Enroll here: https://4geeks.com/checkout?plan=4geeks-plus-subscription&has_available_cohorts=true&cohort=586
+      Would you like a personalized link or more information?
+  advantages_and_certs:
+    es: |
+      ¿Por qué elegir 4Geeks Academy?
+      - Aprende a tu ritmo con acceso a cientos de ejercicios y proyectos.
+      - Comunidad exclusiva y soporte de expertos.
+      - Certificaciones reconocidas internacionalmente.
+      - 4Geeks Academy es uno de los bootcamps mejor valorados en CourseReport y SwitchUp.
+    en: |
+      Why choose 4Geeks Academy?
+      - Learn at your own pace with access to hundreds of exercises and projects.
+      - Exclusive community and expert support.
+      - Internationally recognized certifications.
+      - 4Geeks Academy is one of the top-rated bootcamps on CourseReport and SwitchUp.
+  reminder:
+    es: "Hola {{contact.name}}, solo quería recordarte que la oferta especial sigue disponible por tiempo limitado. ¿Te gustaría que te ayude a inscribirte o tienes alguna duda?"
+    en: "Hi {{contact.name}}, just a quick reminder that the special offer is still available for a limited time. Would you like help enrolling or do you have any questions?"
