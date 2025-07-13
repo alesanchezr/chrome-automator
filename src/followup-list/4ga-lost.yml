@@ -7,27 +7,44 @@ agent:
         Navigate directly to the WhatsApp chat by opening:
         https://web.whatsapp.com/send/?phone={{contact.phone}}&text&type=phone_number&app_absent=0
         
-        Wait until the chat is fully loaded. You must see the message input box at the bottom with the placeholder "Type a message".
-        Do not proceed until this input box is clearly visible.
+        After the page loads:
+        1. If you see any permission prompts (microphone, camera, notifications):
+           - Look for and click any "Block", "Deny", or "✕" buttons
+           - If no button is visible, press Escape to dismiss the prompt
+        2. Wait until the chat is fully loaded
+        3. You must see the message input box at the bottom with the placeholder "Type a message"
+        4. Do not proceed until the input box is clearly visible and active
 
     - task: |
-        Now that the chat is loaded, send the greeting message:
+        Now that the chat is loaded, follow these steps:
+        1. Type this greeting message in the input box:
         {{get_message('greeting', contact, agent_name, list_config)}}
         
-        Wait until you see the message sent checkmark before continuing.
+        2. Click the send button (paper plane icon) ➡️
+        3. Wait until you see one checkmark (✓) appear next to the sent message
+        4. Wait until it turns into two checkmarks (✓✓)
+        5. Only continue after seeing both checkmarks
 
     - task: |
-        Now send the subscription offer message based on contact's course.
-        The message to send is:
+        Now send the subscription offer message. Follow these steps:
+        1. Type this subscription message in the input box:
         {{get_message('subscription_offer_generic', contact, agent_name, list_config)}}
         
-        Wait until you see the message sent checkmark before continuing.
+        2. Click the send button (paper plane icon) ➡️
+        3. Wait until you see one checkmark (✓) appear next to the sent message
+        4. Wait until it turns into two checkmarks (✓✓)
+        5. Only continue after seeing both checkmarks
 
     - task: |
-        Finally, send the advantages message:
+        Finally, send the advantages message. Follow these steps:
+        1. Type this message in the input box:
         {{get_message('advantages_and_certs', contact, agent_name, list_config)}}
         
-        Wait until you see the message sent checkmark before completing.
+        2. Click the send button (paper plane icon) ➡️
+        3. Wait until you see one checkmark (✓) appear next to the sent message
+        4. Wait until it turns into two checkmarks (✓✓)
+        5. Verify all 3 messages show double checkmarks (✓✓) before completing
+        6. Only mark as complete when all messages show double checkmarks
 
 status_tasks:
   PENDING:
@@ -136,7 +153,7 @@ messages:
     en: |
       {{contact.name}}, I saw you're interested in mastering Python! 🐍 I have a special offer for you:
 
-      👉 Full access to the Deep Dive into Python course at 50% off: only $240 USD/year (normally $480)
+      👉 Full access to the Deep Dive into Python course at 50% off: only $240 USD/year (normalmente $480)
       
       In this course you'll learn:
       - Solid Python foundations
@@ -185,6 +202,42 @@ messages:
       Enroll here with 50% off: https://4geeks.com/checkout?plan=4geeks-plus-subscription&has_available_cohorts=true&cohort=1169
 
       Would you like to start creating AI applications today?
+  subscription_offer_cybersecurity:
+    es: |
+      ¡{{contact.name}}, vi que te interesa la Ciberseguridad! 🛡️ Tengo una oferta especial para ti:
+
+      👉 Acceso completo al curso de Cybersecurity con 50% de descuento: solo $240 USD/año (normalmente $480)
+      
+      En el curso aprenderás:
+      - Fundamentos de seguridad informática
+      - Técnicas de hacking ético
+      - Análisis de vulnerabilidades
+      - Protección de sistemas y redes
+      - Gestión de incidentes de seguridad
+
+      BONUS: También tendrás acceso a nuestros cursos de Full Stack, Python y Vibe Coding with AI sin costo adicional.
+
+      Inscríbete aquí con el 50% de descuento: https://4geeks.com/checkout?plan=4geeks-plus-subscription&has_available_cohorts=true&cohort=1170
+
+      ¿Te gustaría comenzar tu carrera en Ciberseguridad hoy mismo?
+    en: |
+      {{contact.name}}, I saw you're interested in Cybersecurity! 🛡️ I have a special offer for you:
+
+      👉 Full access to the Cybersecurity course at 50% off: only $240 USD/year (normally $480)
+      
+      In this course you'll learn:
+      - Information security fundamentals
+      - Ethical hacking techniques
+      - Vulnerability analysis
+      - System and network protection
+      - Security incident management
+
+      BONUS: You'll also get access to our Full Stack, Python, and Vibe Coding with AI courses at no extra cost.
+
+      Enroll here with 50% off: https://4geeks.com/checkout?plan=4geeks-plus-subscription&has_available_cohorts=true&cohort=1170
+
+      Would you like to start your Cybersecurity career today?
+
   subscription_offer_generic:
     es: |
       ¡{{contact.name}}, accede a todos nuestros cursos self-paced con 50% de descuento solo durante un tiempo limitado! $240 USD/año (precio regular $480). Incluye Full Stack, Data Science, Python y Vibe Coding with AI. Inscríbete aquí: https://4geeks.com/checkout?plan=4geeks-plus-subscription&has_available_cohorts=true&cohort=586
