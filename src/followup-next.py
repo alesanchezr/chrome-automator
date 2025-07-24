@@ -11,10 +11,14 @@ from utils import (
 import random, os, asyncio
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
+## Main entry point for follow-up automation
+# EN: Loads environment variables and starts the contact processing loop
+# ES: Carga variables de entorno y comienza el procesamiento de contactos
 load_dotenv(override=True)
 
 def create_completion_handler(contact):
+    # EN: Creates a callback to handle completion for each contact
+    # ES: Crea un callback para manejar la finalización de cada contacto
     """Create a completion handler for a specific contact"""
     def handle_agent_completion(history):
         """Handle the completion of agent tasks"""
@@ -43,6 +47,8 @@ def create_completion_handler(contact):
     return handle_agent_completion
 
 def should_process_contact(contact):
+    # EN: Determines if a contact should be processed (based on environment and data)
+    # ES: Determina si se debe procesar un contacto (según entorno y datos)
     """Determine whether to process a contact based on environment and contact info"""
     # Always need a phone number
     if not contact.get('phone'):
@@ -65,6 +71,8 @@ def should_process_contact(contact):
     return True
 
 async def process_contact(contact, _agent, list_config):
+    # EN: Processes a single contact, sending messages and updating status
+    # ES: Procesa un solo contacto, enviando mensajes y actualizando el estado
     """Process a single contact"""
     if not contact:
         print("Invalid contact object")
@@ -129,6 +137,8 @@ async def process_contact(contact, _agent, list_config):
                 return False
 
 async def process_contact_queue(contacts, list_config, loop, browserAgent=None):
+    # EN: Finds the next valid contact to process from the queue
+    # ES: Busca el siguiente contacto válido para procesar de la cola
     """Process a queue of contacts"""
     if not contacts:
         return None, None
@@ -147,6 +157,8 @@ async def process_contact_queue(contacts, list_config, loop, browserAgent=None):
     return None, browserAgent
 
 async def main_loop(args, list_config, loop):
+    # EN: Main loop for processing contacts, handles errors and retries
+    # ES: Bucle principal para procesar contactos, maneja errores y reintentos
     """Main processing loop"""
     browserAgent = None
     consecutive_errors = 0
@@ -232,6 +244,8 @@ async def main_loop(args, list_config, loop):
         print("Shutdown complete.")
 
 def main():
+    # EN: Parses arguments and starts the main loop
+    # ES: Analiza argumentos y comienza el bucle principal
     parser = argparse.ArgumentParser(description='Process follow-up contacts')
     parser.add_argument('--list', required=True, help='List name to process (e.g., 4ga-lost)')
     args = parser.parse_args()
