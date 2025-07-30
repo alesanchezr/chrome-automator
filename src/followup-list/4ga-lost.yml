@@ -1,27 +1,213 @@
+# ================================================================
+# 4Geeks Academy - WhatsApp Message Templates
+# Plantillas de Mensajes de WhatsApp para 4Geeks Academy
+# ================================================================
+#
+# HOW TO ADD A NEW MESSAGE / CÓMO AGREGAR UN NUEVO MENSAJE:
+# ----------------------------------------------------------
+# 1. Add under 'messages:' section / Agregar bajo la sección 'messages:'
+# 2. Use this format / Usar este formato:
+#
+#   message_name:
+#     es: |
+#       Spanish message here with {{contact.name}} and {agent_name}
+#     en: |
+#       English message here with {{contact.name}} and {agent_name}  
+#
+# AVAILABLE VARIABLES / VARIABLES DISPONIBLES:
+# ---------------------------------------------
+# {{contact.name}} - Contact's name / Nombre del contacto
+# {agent_name} - Agent's name (Flor) / Nombre del agente (Flor)  
+# {course} - Course name / Nombre del curso
+# {academy} - Academy location / Ubicación de la academia
+#
+# REGIONAL DIFFERENCES / DIFERENCIAS REGIONALES:
+# ----------------------------------------------
+# Spain: Use "tú" (informal) / España: Usar "tú" (informal)
+# Latin America: Use "usted" (formal) / Latinoamérica: Usar "usted" (formal)
+#
+# ================================================================
+
 description: Follow-up list for 4GA lost customers
 
 agent:
   name: Flor
   tasks:
-    # Tasks that run on any system
-    - task: "Open WhatsApp at https://web.whatsapp.com/send/?phone={{contact.phone}}&text&type=phone_number&app_absent=0 and wait for the website home page to fully load."
-    - task: "After the loading is over, you should see ether a not found message or a new conversation on the right side of the screen with the number of the contact on the top of the conversation and one input to write a message at the bottom of the conversation"
-    - task: "If the number is not found, or is invalid, stop because the user does not have whatsapp installed for that number"
-    - task: "The cursor should be already placed on the input at the bottom of the conversation, ready to start typing a message, if not, click on the input to place the cursor"
-    - task: "Compose a new message like this but make sure only the first name of the contact is used, ignore the last name: '{{get_message('greeting', contact, agent.name)}}' and send the message"
-    - task: "After sending the previous one, compose new message: '{{get_message('subscription_offer', contact, agent.name)}}' and send the message"
+    - task: |
+        Navigate directly to the WhatsApp chat by opening:
+        https://web.whatsapp.com/send/?phone={{contact.phone}}&text&type=phone_number&app_absent=0
+        
+        After the page loads:
+        1. If you see any permission prompts (microphone, camera, notifications):
+           - Look for and click any "Block", "Deny", or "✕" buttons
+           - If no button is visible, press Escape to dismiss the prompt
+        2. Wait until the chat is fully loaded
+        3. You must see the message input box at the bottom with the placeholder "Type a message"
+        4. Do not proceed until the input box is clearly visible and active
 
-    # - task: "Press Ctrl + W to close the current tab"
-    #   system: "windows"
+    - task: |
+        Now that the chat is loaded, send the following message:
+        {{get_message('if_current_course_{course}_and_academy_{academy}', contact)}}
+        
+    - task: |
+        After the first message is delivered (shows ✓✓), send:
+        {{get_message('if_current_course_{course}', contact)}}
 
+
+# STATUS TASKS CONFIGURATION / CONFIGURACIÓN DE TAREAS POR ESTADO
+# ================================================================
+# This defines what message to send based on contact status
+# Esto define qué mensaje enviar según el estado del contacto
+#
+# Available statuses / Estados disponibles:
+# - PENDING: New contacts / Nuevos contactos
+# - CONTACTED: Already messaged / Ya contactados  
+# - CLOSED: Process completed / Proceso completado
+# - PAUSE: Temporarily paused / Pausado temporalmente
+status_tasks:
+  PENDING:
+    - type: message
+      key: if_current_course_{course}_and_academy_{academy}  # Will be resolved to specific course+location template
+      fallback: if_current_course_{course}  # Fallback to course-only if no location
+  CONTACTED:
+    - type: message
+      key: reminder
+  CLOSED: []
+  PAUSE: []
+
+# MESSAGE TEMPLATES / PLANTILLAS DE MENSAJES
+# ===========================================
+# Each message must have both Spanish (es) and English (en) versions
+# Cada mensaje debe tener versiones en español (es) e inglés (en)
+#
+# MESSAGE TYPES / TIPOS DE MENSAJES:
+# ---------------------------------
+# greeting - Initial greeting message
+# subscription_offer_generic - Main subscription offer
+# advantages_and_certs - List of advantages and certifications
+#
+# AVAILABLE MESSAGE TYPES / TIPOS DE MENSAJES DISPONIBLES:
+# --------------------------------------------------------
+# 1. Course-specific messages / Mensajes específicos por curso:
+#    - full-stack, datascience-ml, cybersecurity
+# 2. Location-specific messages / Mensajes específicos por ubicación:
+#    - madrid-spain, miami-usa  
+# 3. Generic messages / Mensajes genéricos:
+#    - Generic fallback for any course/location
 messages:
-  greeting:
-    es: "Hola {name} como estas? Soy {agent_name} de 4geeks"
-    en: "Hi {name}, how are you? I'm {agent_name} from 4geeks"
-  subscription_offer:
-    es: "Quería contarte sobre nuestra modalidad de suscripción (anual o mensual), que te da acceso a 4 cursos para aprender a tu propio ritmo:
-Full Stack, Data Science, Python, Vibe Coding with AI
-Es una excelente opción si buscás flexibilidad y querés formarte en tecnología con contenidos de calidad. ¿Te gustaría que te comparta más información?"
-    en: "I wanted to tell you about our subscription model (annual or monthly), which gives you access to 4 courses to learn at your own pace:
-Full Stack, Data Science, Python, Vibe Coding with AI
-It's an excellent option if you're looking for flexibility and want to learn technology with quality content. Would you like me to share more information?"
+  # ============================================================
+  # MADRID FULL STACK COURSE / CURSO FULL STACK MADRID
+  # ============================================================
+  if_current_course_full-stack_and_academy_madrid-spain:
+    es: |
+      ¡Hola {{contact.name}}👋! Soy {agent_name} de 4Geeks 🤓 Academy. Me gustaría hablarte sobre nuestro bootcamp presencial Full Stack Development en nuestra sede de Madrid para cambiar tu vida y comenzar tu carrera en la industria Tech. Al inscribirte, tendrás acceso a una variedad de bootcamps, incluyendo Vibe Coding with AI, Hack 30 Machines in 30 Days, Deep Dive into Python, Full Stack Development, Data Science and ML, y Coding Introduction. Además, recibirás dos sesiones de mentoría, workshops ilimitados y el apoyo de nuestro Tutor IA, RigoBot. Al completar, recibirás un Certificado de Graduación. Esta oferta especial incluye un 50% de descuento. ¿Te gustaría conocer más sobre nuestra oferta?
+    en: |
+      Hi {{contact.name}} 👋 This is {agent_name} from 4Geeks 🤓 Academy. I would like to talk to you about our in-person Full Stack Development bootcamp at our Madrid campus to change your life and start your career in the Tech industry. If you enroll, you will gain access to a variety of bootcamps, including Vibe Coding with AI, Hack 30 Machines in 30 Days, Deep Dive into Python, Full Stack Development, Data Science and ML, and Coding Introduction. Additionally, you will receive two mentoring sessions, unlimited workshops, and support from our AI Tutor, RigoBot. Upon completion, you will be awarded a Graduation Certificate. This special offer includes a 50% discount. Would you like to learn more about our offer?
+
+  # ============================================================
+  # MIAMI FULL STACK COURSE / CURSO FULL STACK MIAMI
+  # ============================================================
+  if_current_course_full-stack_and_academy_miami-usa:
+    es: |
+      ¡Hola {{contact.name}}👋! Soy {agent_name} de 4Geeks 🤓 Academy. Me gustaría hablarle sobre nuestro bootcamp presencial Full Stack Development en nuestra sede de Miami para cambiar su vida y comenzar su carrera en la industria Tech. Al inscribirse, tendrá acceso a una variedad de bootcamps, incluyendo Vibe Coding with AI, Hack 30 Machines in 30 Days, Deep Dive into Python, Full Stack Development, Data Science and ML, y Coding Introduction. Además, recibirá dos sesiones de mentoría, workshops ilimitados y el apoyo de nuestro Tutor IA, RigoBot. Al completar, recibirá un Certificado de Graduación. Esta oferta especial incluye un 50% de descuento. ¿Le gustaría conocer más sobre nuestra oferta?
+    en: |
+      Hi {{contact.name}} 👋 This is {agent_name} from 4Geeks 🤓 Academy. I would like to talk to you about our in-person Full Stack Development bootcamp at our Miami campus to change your life and start your career in the Tech industry. If you enroll, you will gain access to a variety of bootcamps, including Vibe Coding with AI, Hack 30 Machines in 30 Days, Deep Dive into Python, Full Stack Development, Data Science and ML, and Coding Introduction. Additionally, you will receive two mentoring sessions, unlimited workshops, and support from our AI Tutor, RigoBot. Upon completion, you will be awarded a Graduation Certificate. This special offer includes a 50% discount. Would you like to learn more about our offer?
+
+  # ============================================================
+  # GENERIC FULL STACK COURSE / CURSO FULL STACK GENÉRICO
+  # ============================================================
+  if_current_course_full-stack:
+    es: |
+      ¡Hola {{contact.name}}👋! Soy {agent_name} de 4Geeks 🤓 Academy. Me gustaría hablarle sobre nuestro curso Full Stack Development en modalidad self-paced para cambiar su vida y comenzar su carrera en la industria Tech. Al inscribirse, tendrá acceso a una variedad de bootcamps, incluyendo Vibe Coding with AI, Hack 30 Machines in 30 Days, Deep Dive into Python, Full Stack Development, Data Science and ML, y Coding Introduction. Además, recibirá dos sesiones de mentoría, workshops ilimitados y el apoyo de nuestro Tutor IA, RigoBot. Al completar, recibirá un Certificado de Graduación. Esta oferta especial incluye un 50% de descuento. ¿Le gustaría conocer más sobre nuestra oferta?
+    en: |
+      Hi {{contact.name}} 👋 This is {agent_name} from 4Geeks 🤓 Academy. I would like to talk to you about our self-paced Full Stack Development course to change your life and start your career in the Tech industry. If you enroll, you will gain access to a variety of bootcamps, including Vibe Coding with AI, Hack 30 Machines in 30 Days, Deep Dive into Python, Full Stack Development, Data Science and ML, and Coding Introduction. Additionally, you will receive two mentoring sessions, unlimited workshops, and support from our AI Tutor, RigoBot. Upon completion, you will be awarded a Graduation Certificate. This special offer includes a 50% discount. Would you like to learn more about our offer?
+
+  # ============================================================
+  # DATA SCIENCE & ML COURSE / CURSO DATA SCIENCE & ML
+  # ============================================================
+  if_current_course_datascience-ml:
+    es: |
+      ¡Hola {{contact.name}}👋! Soy {agent_name} de 4Geeks 🤓 Academy. Me gustaría hablarle sobre nuestro curso Data Science & Machine Learning en modalidad self-paced para cambiar su vida y comenzar su carrera en la industria Tech. Al inscribirse, tendrá acceso a una variedad de bootcamps, incluyendo Vibe Coding with AI, Hack 30 Machines in 30 Days, Deep Dive into Python, Full Stack Development, Data Science and ML, y Coding Introduction. Además, recibirá dos sesiones de mentoría, workshops ilimitados y el apoyo de nuestro Tutor IA, RigoBot. Al completar, recibirá un Certificado de Graduación. Esta oferta especial incluye un 50% de descuento. ¿Le gustaría conocer más sobre nuestra oferta?
+    en: |
+      Hi {{contact.name}} 👋 This is {agent_name} from 4Geeks 🤓 Academy. I would like to talk to you about our self-paced Data Science & Machine Learning course to change your life and start your career in the Tech industry. If you enroll, you will gain access to a variety of bootcamps, including Vibe Coding with AI, Hack 30 Machines in 30 Days, Deep Dive into Python, Full Stack Development, Data Science and ML, and Coding Introduction. Additionally, you will receive two mentoring sessions, unlimited workshops, and support from our AI Tutor, RigoBot. Upon completion, you will be awarded a Graduation Certificate. This special offer includes a 50% discount. Would you like to learn more about our offer?
+
+  # ============================================================
+  # MADRID DATA SCIENCE & ML COURSE / CURSO DATA SCIENCE & ML MADRID
+  # ============================================================
+  if_current_course_datascience-ml_and_academy_madrid-spain:
+    es: |
+      ¡Hola {{contact.name}}👋! Soy {agent_name} de 4Geeks 🤓 Academy. Me gustaría hablarte sobre nuestro bootcamp presencial Data Science & Machine Learning en nuestra sede de Madrid para cambiar tu vida y comenzar tu carrera en la industria Tech. Al inscribirte, tendrás acceso a una variedad de bootcamps, incluyendo Vibe Coding with AI, Hack 30 Machines in 30 Days, Deep Dive into Python, Full Stack Development, Data Science and ML, y Coding Introduction. Además, recibirás dos sesiones de mentoría, workshops ilimitados y el apoyo de nuestro Tutor IA, RigoBot. Al completar, recibirás un Certificado de Graduación. Esta oferta especial incluye un 50% de descuento. ¿Te gustaría conocer más sobre nuestra oferta?
+    en: |
+      Hi {{contact.name}} 👋 This is {agent_name} from 4Geeks 🤓 Academy. I would like to talk to you about our in-person Data Science & Machine Learning bootcamp at our Madrid campus to change your life and start your career in the Tech industry. If you enroll, you will gain access to a variety of bootcamps, including Vibe Coding with AI, Hack 30 Machines in 30 Days, Deep Dive into Python, Full Stack Development, Data Science and ML, and Coding Introduction. Additionally, you will receive two mentoring sessions, unlimited workshops, and support from our AI Tutor, RigoBot. Upon completion, you will be awarded a Graduation Certificate. This special offer includes a 50% discount. Would you like to learn more about our offer?
+
+  # ============================================================
+  # MIAMI DATA SCIENCE & ML COURSE / CURSO DATA SCIENCE & ML MIAMI
+  # ============================================================
+  if_current_course_datascience-ml_and_academy_miami-usa:
+    es: |
+      ¡Hola {{contact.name}}👋! Soy {agent_name} de 4Geeks 🤓 Academy. Me gustaría hablarle sobre nuestro bootcamp presencial Data Science & Machine Learning en nuestra sede de Miami para cambiar su vida y comenzar su carrera en la industria Tech. Al inscribirse, tendrá acceso a una variedad de bootcamps, incluyendo Vibe Coding with AI, Hack 30 Machines in 30 Days, Deep Dive into Python, Full Stack Development, Data Science and ML, y Coding Introduction. Además, recibirá dos sesiones de mentoría, workshops ilimitados y el apoyo de nuestro Tutor IA, RigoBot. Al completar, recibirá un Certificado de Graduación. Esta oferta especial incluye un 50% de descuento. ¿Le gustaría conocer más sobre nuestra oferta?
+    en: |
+      Hi {{contact.name}} 👋 This is {agent_name} from 4Geeks 🤓 Academy. I would like to talk to you about our in-person Data Science & Machine Learning bootcamp at our Miami campus to change your life and start your career in the Tech industry. If you enroll, you will gain access to a variety of bootcamps, including Vibe Coding with AI, Hack 30 Machines in 30 Days, Deep Dive into Python, Full Stack Development, Data Science and ML, and Coding Introduction. Additionally, you will receive two mentoring sessions, unlimited workshops, and support from our AI Tutor, RigoBot. Upon completion, you will be awarded a Graduation Certificate. This special offer includes a 50% discount. Would you like to learn more about our offer?
+
+  # ============================================================
+  # CYBERSECURITY COURSE / CURSO CIBERSEGURIDAD
+  # ============================================================
+  if_current_course_cybersecurity:
+    es: |
+      ¡Hola {{contact.name}}👋! Soy {agent_name} de 4Geeks 🤓 Academy. Me gustaría hablarle sobre nuestro curso Hack 30 Machines in 30 Days en modalidad self-paced para cambiar su vida y comenzar su carrera en la industria Tech. Al inscribirse, tendrá acceso a una variedad de bootcamps, incluyendo Vibe Coding with AI, Hack 30 Machines in 30 Days, Deep Dive into Python, Full Stack Development, Data Science and ML, y Coding Introduction. Además, recibirá dos sesiones de mentoría, workshops ilimitados y el apoyo de nuestro Tutor IA, RigoBot. Al completar, recibirá un Certificado de Graduación. Esta oferta especial incluye un 50% de descuento. ¿Le gustaría conocer más sobre nuestra oferta?
+    en: |
+      Hi {{contact.name}} 👋 This is {agent_name} from 4Geeks 🤓 Academy. I would like to talk to you about our self-paced Hack 30 Machines in 30 Days course to change your life and start your career in the Tech industry. If you enroll, you will gain access to a variety of bootcamps, including Vibe Coding with AI, Hack 30 Machines in 30 Days, Deep Dive into Python, Full Stack Development, Data Science and ML, and Coding Introduction. Additionally, you will receive two mentoring sessions, unlimited workshops, and support from our AI Tutor, RigoBot. Upon completion, you will be awarded a Graduation Certificate. This special offer includes a 50% discount. Would you like to learn more about our offer?
+
+  # ============================================================
+  # MADRID CYBERSECURITY COURSE / CURSO CIBERSEGURIDAD MADRID
+  # ============================================================
+  if_current_course_cybersecurity_and_academy_madrid-spain:
+    es: |
+      ¡Hola {{contact.name}}👋! Soy {agent_name} de 4Geeks 🤓 Academy. Me gustaría hablarte sobre nuestro bootcamp presencial Hack 30 Machines in 30 Days en nuestra sede de Madrid para cambiar tu vida y comenzar tu carrera en la industria Tech. Al inscribirte, tendrás acceso a una variedad de bootcamps, incluyendo Vibe Coding with AI, Hack 30 Machines in 30 Days, Deep Dive into Python, Full Stack Development, Data Science and ML, y Coding Introduction. Además, recibirás dos sesiones de mentoría, workshops ilimitados y el apoyo de nuestro Tutor IA, RigoBot. Al completar, recibirás un Certificado de Graduación. Esta oferta especial incluye un 50% de descuento. ¿Te gustaría conocer más sobre nuestra oferta?
+    en: |
+      Hi {{contact.name}} 👋 This is {agent_name} from 4Geeks 🤓 Academy. I would like to talk to you about our in-person Hack 30 Machines in 30 Days bootcamp at our Madrid campus to change your life and start your career in the Tech industry. If you enroll, you will gain access to a variety of bootcamps, including Vibe Coding with AI, Hack 30 Machines in 30 Days, Deep Dive into Python, Full Stack Development, Data Science and ML, and Coding Introduction. Additionally, you will receive two mentoring sessions, unlimited workshops, and support from our AI Tutor, RigoBot. Upon completion, you will be awarded a Graduation Certificate. This special offer includes a 50% discount. Would you like to learn more about our offer?
+
+  # ============================================================
+  # MIAMI CYBERSECURITY COURSE / CURSO CIBERSEGURIDAD MIAMI
+  # ============================================================
+  if_current_course_cybersecurity_and_academy_miami-usa:
+    es: |
+      ¡Hola {{contact.name}}👋! Soy {agent_name} de 4Geeks 🤓 Academy. Me gustaría hablarle sobre nuestro bootcamp presencial Hack 30 Machines in 30 Days en nuestra sede de Miami para cambiar su vida y comenzar su carrera en la industria Tech. Al inscribirse, tendrá acceso a una variedad de bootcamps, incluyendo Vibe Coding with AI, Hack 30 Machines in 30 Days, Deep Dive into Python, Full Stack Development, Data Science and ML, y Coding Introduction. Además, recibirá dos sesiones de mentoría, workshops ilimitados y el apoyo de nuestro Tutor IA, RigoBot. Al completar, recibirá un Certificado de Graduación. Esta oferta especial incluye un 50% de descuento. ¿Le gustaría conocer más sobre nuestra oferta?
+    en: |
+      Hi {{contact.name}} 👋 This is {agent_name} from 4Geeks 🤓 Academy. I would like to talk to you about our in-person Hack 30 Machines in 30 Days bootcamp at our Miami campus to change your life and start your career in the Tech industry. If you enroll, you will gain access to a variety of bootcamps, including Vibe Coding with AI, Hack 30 Machines in 30 Days, Deep Dive into Python, Full Stack Development, Data Science and ML, and Coding Introduction. Additionally, you will receive two mentoring sessions, unlimited workshops, and support from our AI Tutor, RigoBot. Upon completion, you will be awarded a Graduation Certificate. This special offer includes a 50% discount. Would you like to learn more about our offer?
+
+  # ============================================================
+  # GENERIC MADRID ACADEMY / ACADEMIA MADRID GENÉRICA
+  # ============================================================
+  if_current_course_generic_and_academy_madrid-spain:
+    es: |
+      ¡Hola {{contact.name}}👋! Soy {agent_name} de 4Geeks 🤓 Academy. Esta oferta incluye con 50% de descuento: Bootcamps: Vibe Coding with AI, Hack 30 Machines in 30 Days, Deep Dive into Python, Full Stack Development, Data Science and ML, Coding Introduction. Además: 2 Mentorías, Workshops ilimitados, Tutor IA RigoBot, Certificado al graduarte y acceso a todos los cursos. Con esta oferta podrás comenzar inmediatamente cualquiera de nuestros bootcamps en nuestra sede de Madrid, además del acceso a la plataforma por solo $240 USD/año (normalmente $480). ¿Te gustaría conocer más detalles?
+    en: |
+      Hi {{contact.name}} 👋 This is {agent_name} from 4Geeks 🤓 Academy. This offer includes with 50% discount: Bootcamps: Vibe Coding with AI, Hack 30 Machines in 30 Days, Deep Dive into Python, Full Stack Development, Data Science and ML, Coding Introduction. Additionally: 2 Mentoring sessions, Unlimited workshops, AI Tutor RigoBot, Graduation Certificate and access to all courses. With this offer you can immediately start any of our bootcamps at our Madrid campus, plus access to the platform for only $240 USD/year (normally $480). Would you like to know more details?
+
+  # ============================================================
+  # GENERIC MIAMI ACADEMY / ACADEMIA MIAMI GENÉRICA
+  # ============================================================
+  if_current_course_generic_and_academy_miami-usa:
+    es: |
+      ¡Hola {{contact.name}}👋! Soy {agent_name} de 4Geeks 🤓 Academy. Vimos que le interesa la programación. 🚀 Tenemos una oferta especial para usted: acceso a todos nuestros cursos self-paced con 50% de descuento - solo $240 USD/año (precio regular $480). Incluye Full Stack, Data Science, Python y más. ¿Le gustaría saber más sobre nuestros programas?
+    en: |
+      Hi {{contact.name}} 👋 This is {agent_name} from 4Geeks 🤓 Academy. We saw that you're interested in programming. 🚀 We have a special offer for you: access to all our self-paced courses with 50% discount - only $240 USD/year (regular price $480). Includes Full Stack, Data Science, Python and more. Would you like to know more about our programs?
+
+  # ============================================================
+  # GENERIC FALLBACK MESSAGE / MENSAJE GENÉRICO DE RESPALDO
+  # ============================================================
+  if_current_course_generic:
+    es: |
+      ¡Hola {{contact.name}}👋! Soy {agent_name} de 4Geeks 🤓 Academy. Tenemos una oferta especial con 50% de descuento: acceso inmediato a todos nuestros bootcamps self-paced, incluyendo Vibe Coding with AI, Hack 30 Machines in 30 Days, Deep Dive into Python, Full Stack Development, Data Science and ML, y Coding Introduction. Además, recibirás 2 mentorías, workshops ilimitados, Tutor IA RigoBot, Certificado al graduarte y acceso a la plataforma por solo $240 USD/año (normalmente $480). ¿Te gustaría conocer más detalles?
+    en: |
+      Hi {{contact.name}} 👋 This is {agent_name} from 4Geeks 🤓 Academy. We have a special offer with 50% discount: immediate access to all our self-paced bootcamps, including Vibe Coding with AI, Hack 30 Machines in 30 Days, Deep Dive into Python, Full Stack Development, Data Science and ML, and Coding Introduction. Additionally, you will receive 2 mentoring sessions, unlimited workshops, AI Tutor RigoBot, Graduation Certificate, and access to the platform for only $240 USD/year (normally $480). Would you like to know more details?
+
+
+  # ============================================================
+  # REMINDER MESSAGE / MENSAJE DE RECORDATORIO
+  # ============================================================
+
+  reminder:
+    es: "Hola {{contact.name}} 👋🤓, solo quería recordarle que la oferta especial sigue disponible por tiempo limitado. ¿Le gustaría que le ayude a inscribirse o tiene alguna duda?"
+    en: "Hi {{contact.name}} 👋🤓, just a quick reminder that the special offer is still available for a limited time. Would you like help enrolling or do you have any questions?"

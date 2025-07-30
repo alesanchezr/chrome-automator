@@ -1,7 +1,10 @@
-browser-use==0.1.41
-langchain==0.3.22
-langchain-openai==0.3.11
-playwright==1.52.0
-PyYAML==6.0.2
-python-dotenv==1.1.0
-requests==2.32.3
+
+# Core dependencies
+browser-use==0.1.41        # Browser automation and control
+playwright==1.52.0         # Browser automation backend
+PyYAML==6.0.2             # YAML file handling for configurations
+python-dotenv==1.1.0       # Environment variable management
+requests==2.32.3          # HTTP requests for API communication
+
+# Optional dependencies for development
+ipython>=8.12.0           # Enhanced Python REPL for debugging (optional)
